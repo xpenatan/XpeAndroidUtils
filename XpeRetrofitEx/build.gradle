@@ -1,6 +1,7 @@
 plugins {
     id 'java'
 }
+apply from: '../deploy.gradle'
 
 group 'XpeAndroidUtils'
 version '1.0-SNAPSHOT'
@@ -19,4 +20,18 @@ dependencies {
 
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name 'XpeRetrofitEx'
+                artifactId 'XpeRetrofitEx'
+                packaging 'jar'
+                description 'Android Utils'
+            }
+        }
+    }
 }
