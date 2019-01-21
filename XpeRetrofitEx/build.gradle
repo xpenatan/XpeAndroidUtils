@@ -3,7 +3,7 @@ plugins {
 }
 apply from: '../deploy.gradle'
 
-group 'XpeAndroidUtils'
+group 'com.github.xpenatan.XpeAndroidUtils'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8

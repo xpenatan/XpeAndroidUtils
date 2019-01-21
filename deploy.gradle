@@ -20,7 +20,7 @@ uploadArchives {
 				}
 			} else {
 				beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-				snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/com/github/xpenatan/") {
+				snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
 					authentication(userName: xUser, password: xPass)
 				}
 			}
