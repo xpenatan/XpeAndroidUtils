@@ -17,6 +17,8 @@ public abstract class XpeRequestCallback<T> implements Callback<T>, Runnable {
     Throwable throwable;
     XpeRequestStatus status;
 
+    private boolean init = false;
+
     @Override
     public void onResponse(Call<T> call, Response<T> response) {
         this.rawResponse = response;
@@ -47,13 +49,31 @@ public abstract class XpeRequestCallback<T> implements Callback<T>, Runnable {
         retrofitController.postMainThread(this);
     }
 
-    public abstract void onPrepareCall(XpeRetrofitController retrofitController);
-    public abstract Call<T> onCreateCall(XpeRetrofitController retrofitController);
+    protected abstract void onPrepareCall(XpeRetrofitController retrofitController);
+    protected abstract Call<T> onCreateCall(XpeRetrofitController retrofitController);
     /**
      * Response status will be LOADING, SUCCESS or ERROR
      */
     public abstract void onResponse(XpeRetrofitController retrofitController);
 
+    void onPrepareCall() {
+        if(!init) {
+            init = true;
+            onPrepareCall(retrofitController);
+        }
+    }
+
+    Call<T>  onCreateCall() {
+        return onCreateCall(retrofitController);
+    }
+
+    /**
+     * onPrepareCall default is to call one time. This will make it call multiple times as needed
+     * Caution: Can cause dead lock
+     */
+    public void resetOnPrepare() {
+        init = false;
+    }
 
     @Override
     public void run() {

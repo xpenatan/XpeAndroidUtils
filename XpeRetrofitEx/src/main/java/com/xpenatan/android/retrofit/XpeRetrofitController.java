@@ -11,10 +11,12 @@ public class XpeRetrofitController {
     private boolean isCall;
 
     public void push(XpeRequestCallback callback) {
+        callback.retrofitController = this;
         callers.add(callback);
     }
 
     public void pushToFirst(XpeRequestCallback callback) {
+        callback.retrofitController = this;
         callers.add(0, callback);
     }
 
@@ -22,16 +24,14 @@ public class XpeRetrofitController {
         if(callers.size() != 0) {
             // prepare to call
             XpeRequestCallback first = callers.get(0);
-            first.retrofitController = this;
-            first.onPrepareCall(this);
+            first.onPrepareCall();
             /**
              *   Now remove it.  This feature allows to add more calls on onPrepareCall if this current caller
              *   is not ready yet to call
             */
             XpeRequestCallback next = callers.remove(0);
-            first.retrofitController = this;
 
-            Call<?> caller = next.onCreateCall(this);
+            Call<?> caller = next.onCreateCall();
             String exception = null;
             if(caller == null ) {
                 exception = "Caller is null";
