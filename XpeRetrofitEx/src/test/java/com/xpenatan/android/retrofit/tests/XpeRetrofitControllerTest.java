@@ -1,5 +1,8 @@
-package com.xpenatan.android.retrofit;
+package com.xpenatan.android.retrofit.tests;
 
+import com.xpenatan.android.retrofit.XpeRequestCallback;
+import com.xpenatan.android.retrofit.XpeRequestStatus;
+import com.xpenatan.android.retrofit.XpeRetrofitController;
 import com.xpenatan.android.retrofit.network.RetrofitTest;
 import com.xpenatan.android.retrofit.network.api.ApiPathTests;
 import com.xpenatan.android.retrofit.network.api.CEPServiceAPI;
@@ -25,8 +28,6 @@ public class XpeRetrofitControllerTest {
         @Test
     public void oneCallTest() {
 
-
-
         XpeRetrofitController controller = new XpeRetrofitController();
 
         controller.push(new XpeRequestCallbackZipCode() {
@@ -37,26 +38,20 @@ public class XpeRetrofitControllerTest {
 
                 if(status == XpeRequestStatus.ERROR)
                     Assert.fail();
-
-                if(status == XpeRequestStatus.SUCCESS)
-                    retrofitController.next();
             }
         });
-
-        System.out.println("#### Retrofit Calling");
-        controller.call();
-        System.out.println("#### Retrofit Finish");
     }
 
     private int twoCallTest = 0;
 
-    @Test
-    public void twoCallTest() {
-
+    public void twoCallTest(boolean onHold) {
         OkHttpClient okHttpClient = RetrofitTest.provideHttpClient();
         Retrofit retrofit = RetrofitTest.provideRetrofit(ApiPathTests.PATH_SERVER_VALIDATE_CEP, okHttpClient);
 
         XpeRetrofitController controller = new XpeRetrofitController();
+
+        if(onHold)
+            controller.holdCall();
 
         controller.push(new XpeRequestCallbackZipCode() {
             @Override
@@ -69,7 +64,6 @@ public class XpeRetrofitControllerTest {
                     Assert.fail();
                 if(status == XpeRequestStatus.SUCCESS) {
                     twoCallTest++;
-                    retrofitController.next();
                 }
             }
         });
@@ -84,24 +78,36 @@ public class XpeRetrofitControllerTest {
 
                 if(status == XpeRequestStatus.SUCCESS) {
                     twoCallTest++;
-                    retrofitController.next();
                 }
             }
         });
-
-        controller.call();
+        if(onHold)
+            controller.call();
         Assert.assertEquals(2, twoCallTest);
+    }
+
+    @Test
+    public void twoCallTest() {
+        twoCallTest(false);
+    }
+
+    @Test
+    public void twoCallTestOnHold() {
+        twoCallTest(true);
     }
 
     private int twoCallOnePriorityTest = 0;
 
-    @Test
-    public void twoCallOnePriorityTest() {
+
+    public void twoCallOnePriorityTest(boolean onHold) {
 
         OkHttpClient okHttpClient = RetrofitTest.provideHttpClient();
         Retrofit retrofit = RetrofitTest.provideRetrofit(ApiPathTests.PATH_SERVER_VALIDATE_CEP, okHttpClient);
 
         XpeRetrofitController controller = new XpeRetrofitController();
+
+        if(onHold)
+            controller.holdCall();
 
         controller.push(new XpeRequestCallbackZipCode() {
             @Override
@@ -114,7 +120,6 @@ public class XpeRetrofitControllerTest {
                     Assert.fail();
                 if(status == XpeRequestStatus.SUCCESS) {
                     twoCallOnePriorityTest++;
-                    retrofitController.next();
                 }
             }
         });
@@ -129,7 +134,6 @@ public class XpeRetrofitControllerTest {
 
                 if(status == XpeRequestStatus.SUCCESS) {
                     twoCallOnePriorityTest++;
-                    retrofitController.next();
                 }
             }
 
@@ -147,7 +151,6 @@ public class XpeRetrofitControllerTest {
 
                         if(status == XpeRequestStatus.SUCCESS) {
                             twoCallOnePriorityTest++;
-                            retrofitController.next();
                         }
                     }
                 });
@@ -155,11 +158,22 @@ public class XpeRetrofitControllerTest {
             }
         });
 
-        controller.call();
+        if(onHold)
+            controller.call();
+
         Assert.assertEquals(3, twoCallOnePriorityTest);
+
     }
 
+    @Test
+    public void twoCallOnePriorityTest() {
+        twoCallOnePriorityTest(false);
+    }
 
+    @Test
+    public void twoCallOnePriorityTestOnHold() {
+        twoCallOnePriorityTest(true);
+    }
 
     public class XpeRequestCallbackZipCode extends XpeRequestCallback {
 

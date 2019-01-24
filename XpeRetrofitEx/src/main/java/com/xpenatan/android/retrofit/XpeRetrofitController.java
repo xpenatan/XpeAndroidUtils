@@ -9,10 +9,14 @@ public class XpeRetrofitController {
     private final ArrayList<XpeRequestCallback> callers = new ArrayList<>();
 
     private boolean isCall;
+    private boolean holdCall;
 
     public void push(XpeRequestCallback callback) {
         callback.retrofitController = this;
         callers.add(callback);
+        if(!holdCall) {
+            next();
+        }
     }
 
     public void pushToFirst(XpeRequestCallback callback) {
@@ -20,8 +24,9 @@ public class XpeRetrofitController {
         callers.add(0, callback);
     }
 
-    public void next() {
+    void next() {
         if(callers.size() != 0) {
+            isCall = true;
             // prepare to call
             XpeRequestCallback first = callers.get(0);
             first.onPrepareCall();
@@ -42,16 +47,30 @@ public class XpeRetrofitController {
         }
     }
 
-    void onRespose() {
+    void onRespose(XpeRequestCallback callback) {
+        // may be on main thread
+        try {
+            callback.onResponse(this);
+        }
+        catch (Throwable t) {
+            t.printStackTrace();
+        }
         if(callers.size() == 0)
             isCall = false;
+        else {
+            next();
+        }
+    }
+
+    public void holdCall() {
+        holdCall = true;
     }
 
     public void call() {
-        if(isCall)
-            throw new ExceptionInInitializerError("Call already called. Clear first before Calling");
-        isCall = true;
-        next();
+        if(!isCall) {
+            holdCall = false;
+            next();
+        }
     }
 
     public void clearCallers() {

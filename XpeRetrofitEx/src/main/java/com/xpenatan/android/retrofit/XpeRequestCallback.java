@@ -11,11 +11,11 @@ public abstract class XpeRequestCallback<T> implements Callback<T>, Runnable {
     XpeRetrofitController retrofitController = null;
 
     Call<T> resoinseCall = null;
-    int code;
-    Response<T> rawResponse = null;
-    T responseData = null;
-    Throwable throwable;
-    XpeRequestStatus status;
+    protected int code;
+    protected Response<T> rawResponse = null;
+    protected T responseData = null;
+    protected Throwable throwable;
+    protected XpeRequestStatus status;
 
     private boolean init = false;
 
@@ -77,8 +77,7 @@ public abstract class XpeRequestCallback<T> implements Callback<T>, Runnable {
 
     @Override
     public void run() {
-        retrofitController.onRespose();
-        onResponse(retrofitController);
+        retrofitController.onRespose(this);
     }
 
 }
